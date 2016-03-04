@@ -1,0 +1,16 @@
+
+<ion-view title="{{name}}">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="item in items" ui-sref="{{item.state}}" style="cursor: pointer;">
+        <h2>{{item.title}}</h2>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+
+  <div class="bar bar-footer bar-balanced">
+    <div class="title">{{nextItem.description}}</div>
+  </div>
+</ion-view>
+
+

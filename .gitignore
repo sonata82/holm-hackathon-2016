@@ -7,3 +7,4 @@ plugins/
 resources/
 www/lib
 .idea/
+www/js/api_keys.js

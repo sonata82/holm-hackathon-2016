@@ -1,4 +1,4 @@
-angular.module('starter.services', [])
+angular.module('starter.services', ['starter.api_keys'])
 
 .factory('Chats', function() {
   // Might use a resource here that returns a JSON array
@@ -47,4 +47,50 @@ angular.module('starter.services', [])
       return null;
     }
   };
+})
+
+  .factory('LH', function ($http, LH_CREDENTIALS) {
+    var token;
+
+    $http.post('https://api.lufthansa.com/v1/oauth/token', {
+      client_id: LH_CREDENTIALS.CLIENT_ID,
+      client_secret: LH_CREDENTIALS.CLIENT_SECRET,
+      grant_type: "client_credentials"
+    }).then(function (data) {
+      console.log(data);
+    });
+
+    return {
+      getToken: function () {
+        return token;
+      }
+    }
+  })
+
+.factory('Baggage', function ($rootScope, $http, $q, LH) {
+   return {
+     isBaggageAvailable: function () {
+       var deferred = $q.defer();
+
+       $http.get('https://api-test.lufthansa.com/v1/mockup/profiles/orders/' + $rootScope.order + '?callerid=' + LH.getToken()).then(function (data) {
+
+       });
+
+       return deferred.promise;
+     },
+     timeToBaggageInMinutes: function () {
+       return 11;
+     }
+   };
+})
+
+.factory('Flights', function () {
+  return {
+    existsConnectingFlight: function () {
+      return true;
+    },
+    timeToConnectingFlighInMinutes: function () {
+      return 64;
+    }
+  }
 });

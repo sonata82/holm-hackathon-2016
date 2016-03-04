@@ -31,8 +31,31 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   // Each state's controller can be found in controllers.js
   $stateProvider
 
+    .state('init', {
+      url: '/init',
+      controller: function ($rootScope, $state, $ionicHistory) {
+        console.log('Initialising...');
+        $rootScope.order = 'ord_001';
+
+        $ionicHistory.currentView($ionicHistory.backView());
+        $state.go('landing');
+      }
+    })
+
+    .state('landing', {
+      url: '/landing',
+      templateUrl: 'templates/list.html',
+      controller: 'ListController'
+    })
+
+    .state('baggage', {
+      url: '/baggage',
+      templateUrl: 'templates/list.html',
+      controller: 'ListController'
+    })
+
   // setup an abstract state for the tabs directive
-    .state('tab', {
+  .state('tab', {
     url: '/tab',
     abstract: true,
     templateUrl: 'templates/tabs.html'
@@ -68,7 +91,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
       }
     })
-  
+
   .state('tab.account', {
     url: '/account',
     views: {
@@ -89,6 +112,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   ;
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+  $urlRouterProvider.otherwise('/init');
 
 });
