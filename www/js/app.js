@@ -33,12 +33,29 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('init', {
       url: '/init',
-      controller: function ($rootScope, $state, $ionicHistory) {
-        console.log('Initialising...');
-        $rootScope.order = 'ord_001';
+      controller: function ($rootScope, $state, $ionicHistory, ExistsConnectingFlight, ExistsArrivingFlight) {
+        console.log('Initialising...', ExistsArrivingFlight);
 
         $ionicHistory.currentView($ionicHistory.backView());
-        $state.go('landing');
+        if (ExistsArrivingFlight) {
+          $state.go('landing');
+        } else {
+          $state.go('arriving');
+        }
+      },
+      resolve: {
+        'Order': function ($rootScope) {
+          $rootScope.order = 'ord_002';
+        },
+        'LufthansaToken': function (Lufthansa) {
+          return Lufthansa.authenticate();
+        },
+        'ExistsConnectingFlight': function (Order, LufthansaToken, Flights) {
+          return Flights.existsConnectingFlight();
+        },
+        'ExistsArrivingFlight': function (Order, LufthansaToken, Flights) {
+          return Flights.existsArrivingFlight();
+        }
       }
     })
 
@@ -48,7 +65,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       controller: 'ListController',
       resolve: {
         'order': function ($rootScope) {
-          $rootScope.order = 'ord_001';
+          $rootScope.order = 'ord_002';
         },
         'LufthansaToken': function (Lufthansa) {
           return Lufthansa.authenticate();
@@ -58,6 +75,23 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('baggage', {
       url: '/baggage',
+      templateUrl: 'templates/list.html',
+      controller: 'ListController'
+    })
+
+    .state('shopping', {
+      url: '/shopping',
+      templateUrl: 'templates/list.html',
+      controller: 'ListController'
+    })
+
+    .state('eating', {
+      url: '/eating',
+      templateUrl: 'templates/list.html',
+      controller: 'ListController'
+    })
+    .state('arriving', {
+      url: '/arriving',
       templateUrl: 'templates/list.html',
       controller: 'ListController'
     })

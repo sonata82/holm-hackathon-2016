@@ -98,15 +98,20 @@ angular.module('starter.controllers', [])
         break;
     }
 
-    if (Flights.existsConnectingFlight()) {
-      $scope.nextItem = {
-        description: 'You flight leaves in ' + Flights.timeToConnectingFlightInMinutes() + ' minutes'
+    Flights.existsConnectingFlight().then(function (nextFlightInfo) {
+      if (nextFlightInfo) {
+        if (nextFlightInfo.toNow !== -1) {
+          $scope.nextItem = {
+            description: 'You flight leaves ' + nextFlightInfo.toNow
+          }
+        }
+      } else {
+        $scope.items.push({
+          title: 'Train to home',
+          state: 'train'
+        });
       }
-    } else {
-      $scope.items.push({
-        title: 'Train to home'
-      });
-    }
+    });
 
     console.log($scope.items);
     //  ,

@@ -55,6 +55,9 @@ angular.module('starter.services', ['starter.api_keys'])
 
     return {
       authenticate: function () {
+        if (token) {
+          return token;
+        }
         return $http({
           method: 'POST',
           url: LH_API.ENDPOINT_TEST + '/oauth/token',
@@ -73,8 +76,6 @@ angular.module('starter.services', ['starter.api_keys'])
             return str.join("&");
           }
         }).then(function (result) {
-          console.log(result);
-
           token = result.data.access_token;
         });
       },
@@ -87,8 +88,21 @@ angular.module('starter.services', ['starter.api_keys'])
       getCallerId: function () {
         return 'team1';
       },
-      getOrder: function () {
+      getOrder: function (orderId) {
+        var order = $q.defer();
 
+        $http({
+          url: this.getServiceUrl() + '/mockup/profiles/orders/' + orderId + '?callerid=' + this.getCallerId(),
+          headers: {
+            'Authorization': 'Bearer ' + this.getToken()
+          }
+        }).then(function (result) {
+          var orderItem = result.data.OrdersResponse.Orders.Order.OrderItems.OrderItem;
+
+          order.resolve(orderItem.length ? orderItem[0].FlightItem : orderItem.FlightItem);
+        });
+
+        return order.promise;
       }
     }
   })
@@ -112,19 +126,14 @@ angular.module('starter.services', ['starter.api_keys'])
 
   })
 
-.factory('Baggage', function ($rootScope, $http, $q, Lufthansa) {
+.factory('Baggage', function ($rootScope, $q, Lufthansa) {
    return {
      isBaggageAvailable: function () {
        var deferred = $q.defer();
 
-       $http({
-         url: Lufthansa.getServiceUrl() + '/mockup/profiles/orders/' + $rootScope.order + '?callerid=' + Lufthansa.getCallerId(),
-         headers: {
-           'Authorization': 'Bearer ' + Lufthansa.getToken()
-         }
-       }).then(function (result) {
-         var Flight = result.data.OrdersResponse.Orders.Order.OrderItems.OrderItem.FlightItem.OriginDestination.Flight,
-           lastOrder = Flight[Flight.length - 1];
+       Lufthansa.getOrder($rootScope.order).then(function (flightItem) {
+         var Flight = flightItem.OriginDestination.Flight,
+           lastOrder = Flight.length ? Flight[Flight.length - 1] : Flight;
 
          if (lastOrder.Arrival.AirportCode == 'FRA') {
            if (lastOrder.BaggageItem.BagDetails.BagDetail.CheckedBags.TotalQuantity > 0) {
@@ -142,13 +151,73 @@ angular.module('starter.services', ['starter.api_keys'])
    };
 })
 
-.factory('Flights', function () {
+.factory('Flights', function ($rootScope, $q, Lufthansa) {
   return {
     existsConnectingFlight: function () {
-      return true;
+      var deferred = $q.defer();
+
+      Lufthansa.getOrder($rootScope.order).then(function (flightItem) {
+        var Flight = flightItem.OriginDestination.Flight,
+          currentOrder, nextOrder;
+
+        if (Flight.length) {
+          for (var i = 0, l = Flight.length; i < l; i++) {
+            if (Flight[i].Arrival.AirportCode == 'FRA') {
+              currentOrder = Flight[i];
+              if (Flight[i+1]) {
+                nextOrder = Flight[i+1];
+              }
+              break;
+            }
+          }
+        } else {
+          nextOrder = Flight;
+        }
+
+        if (nextOrder) {
+          var departureMoment = moment(nextOrder.Departure.Date + " " + nextOrder.Departure.Time);
+          return deferred.resolve({
+            toNow: departureMoment.isAfter(moment()) ? departureMoment.fromNow() : -1
+          });
+        }
+
+        deferred.resolve();
+      });
+
+      return deferred.promise;
     },
-    timeToConnectingFlightInMinutes: function () {
-      return 64;
+
+    existsArrivingFlight: function () {
+      var deferred = $q.defer();
+
+      Lufthansa.getOrder($rootScope.order).then(function (flightItem) {
+        var Flight = flightItem.OriginDestination.Flight,
+          currentOrder;
+
+        console.log(Flight);
+
+        if (Flight.length) {
+          for (var i = 0, l = Flight.length; i < l; i++) {
+            if (Flight[i].Arrival.AirportCode == 'FRA') {
+              currentOrder = Flight[i];
+              break;
+            }
+          }
+        } else {
+          currentOrder = Flight;
+        }
+
+        if (currentOrder) {
+          var departureMoment = moment(currentOrder.Departure.Date + " " + currentOrder.Departure.Time);
+          return deferred.resolve({
+            toNow: departureMoment.isBefore(moment()) ? departureMoment.fromNow() : -1
+          });
+        }
+
+        deferred.resolve();
+      });
+
+      return deferred.promise;
     }
   }
 });
