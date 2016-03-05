@@ -59,7 +59,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('ListController', function ($scope, $state, Baggage, Flights) {
+.controller('ListController', function ($scope, $state, Baggage, Flights, Fraport, Location) {
     console.log($state.current.name);
     $scope.name = $state.current.name;
     $scope.items = [];
@@ -87,10 +87,23 @@ angular.module('starter.controllers', [])
           {
             title: 'Hungry?',
             state: 'eating'
-          })
+          });
         }
         break;
       case 'shopping':
+        Fraport.getBeacons('Retail').then(function(shops) {
+          console.log('shops:',shops);
+
+          Location.getMyLocation().then(function (myLocation) {
+            for (var shop in shops) {
+              $scope.items.push({
+                title: shops[shop].name,
+                distance: Location.getDistance(shops[shop].latitude, shops[shop].longitude, myLocation.latitude, myLocation.longitude),
+                state: 'navigation'
+              })
+            }
+          });
+        });
       case 'eating':
         // baggage?
         // plane leaving?

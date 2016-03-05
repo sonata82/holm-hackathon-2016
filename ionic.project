@@ -9,6 +9,10 @@
     {
       "path": "/lh_api",
       "proxyUrl": "https://api.lufthansa.com/v1"
+    },
+    {
+      "path": "/fr_api",
+      "proxyUrl": "https://cube.api.aero/atibeacon/beacons"
     }
   ]
 }

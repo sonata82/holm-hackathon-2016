@@ -64,7 +64,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       templateUrl: 'templates/list.html',
       controller: 'ListController',
       resolve: {
-        'order': function ($rootScope) {
+        'Order': function ($rootScope) {
           $rootScope.order = 'ord_002';
         },
         'LufthansaToken': function (Lufthansa) {
@@ -82,7 +82,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     .state('shopping', {
       url: '/shopping',
       templateUrl: 'templates/list.html',
-      controller: 'ListController'
+      controller: 'ListController',
+      resolve: {
+        'Order': function ($rootScope) {
+          $rootScope.order = 'ord_002';
+        },
+        'LufthansaToken': function (Lufthansa) {
+          return Lufthansa.authenticate();
+        }
+        /*'RetailBeacons': function (Fraport) {
+          return Fraport.getBeacons('retail');
+        }*/
+      }
     })
 
     .state('eating', {
@@ -92,6 +103,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
     .state('arriving', {
       url: '/arriving',
+      templateUrl: 'templates/list.html',
+      controller: 'ListController'
+    })
+
+    .state('navigation', {
+      url: '/navigation',
       templateUrl: 'templates/list.html',
       controller: 'ListController'
     })

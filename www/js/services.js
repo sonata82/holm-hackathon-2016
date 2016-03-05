@@ -107,20 +107,32 @@ angular.module('starter.services', ['starter.api_keys'])
     }
   })
 
-  .factory('Fraport', function ($http, FRAPORT_API) {
-    var beacons = [];
-
-    $http.get(FRAPORT_API.ENDPOINT + '/1', {
-      airportCode: 'FRA',
-      app_id: FRAPORT_API.APP_ID,
-      app_key: FRAPORT_API.APP_KEY
-    }).then(function (data) {
-      console.log('fraport:', data);
-    });
+  .factory('Fraport', function ($http, $q, FRAPORT_API) {
+    var beaconsByType = {};
 
     return {
       getBeacons: function (type) {
+        var deferred = $q.defer();
 
+        $http({url: FRAPORT_API.ENDPOINT + '/1', params:{
+          airportCode: 'FRA',
+          app_id: FRAPORT_API.APP_ID,
+          app_key: FRAPORT_API.APP_KEY
+        }}).then(function (results) {
+          console.log('fraport:', results.data);
+
+          for (var i= 0, l = results.data.length; i < l; i++) {
+            var beaconType = results.data[i].beaconType;
+            if (!beaconsByType[beaconType]) {
+              beaconsByType[beaconType] = []
+            }
+            beaconsByType[beaconType].push(results.data[i]);
+          }
+
+          deferred.resolve(beaconsByType[type]);
+        });
+
+        return deferred.promise;
       }
     }
 
@@ -220,4 +232,56 @@ angular.module('starter.services', ['starter.api_keys'])
       return deferred.promise;
     }
   }
+})
+
+.factory('Location', function ($cordovaGeolocation, $q) {
+
+    /** Converts numeric degrees to radians */
+    if (typeof(Number.prototype.toRad) === "undefined") {
+      Number.prototype.toRad = function() {
+        return this * Math.PI / 180;
+      }
+    }
+
+    /**
+     * Latitude/longitude spherical geodesy formulae & scripts (c) Chris Veness 2002-2011
+     * - www.movable-type.co.uk/scripts/latlong.html
+     *
+     * where R is earth’s radius (mean radius = 6,371km);
+     * note that angles need to be in radians to pass to trig functions!
+     */
+    var getDistance = function (lat1, lon1, lat2, lon2) {
+      var R = 6371; // km
+      var dLat = (lat2-lat1).toRad();
+      var dLon = (lon2-lon1).toRad();
+      var lat1 = lat1.toRad();
+      var lat2 = lat2.toRad();
+
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      var d = R * c;
+      return Math.round(d);
+    };
+
+    return {
+      getMyLocation: function () {
+        var deferred = $q.defer();
+
+        $cordovaGeolocation
+          .getCurrentPosition({timeout: 10000, enableHighAccuracy: false})
+          .then(function (position) {
+            deferred.resolve({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            });
+          });
+
+        return deferred.promise;
+      },
+
+      getDistance: function (latitude1, lonitude1, latitude2, longitude2) {
+        return getDistance(latitude1, lonitude1, latitude2, longitude2);
+      }
+    }
 });
