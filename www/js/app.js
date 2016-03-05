@@ -45,7 +45,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     .state('landing', {
       url: '/landing',
       templateUrl: 'templates/list.html',
-      controller: 'ListController'
+      controller: 'ListController',
+      resolve: {
+        'order': function ($rootScope) {
+          $rootScope.order = 'ord_001';
+        },
+        'LufthansaToken': function (Lufthansa) {
+          return Lufthansa.authenticate();
+        }
+      }
     })
 
     .state('baggage', {

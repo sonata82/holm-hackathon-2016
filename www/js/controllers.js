@@ -66,11 +66,13 @@ angular.module('starter.controllers', [])
 
     switch($state.current.name) {
       case 'landing':
-        Baggage.isBaggageAvailable().then(function () {
-          $scope.items.push({
-            title: 'Claim your baggage',
-            state: 'baggage'
-          });
+        Baggage.isBaggageAvailable().then(function (isBaggageAvailable) {
+          if (isBaggageAvailable) {
+            $scope.items.push({
+              title: 'Claim your baggage',
+              state: 'baggage'
+            });
+          }
         });
         // baggage?
         // train?
@@ -98,7 +100,7 @@ angular.module('starter.controllers', [])
 
     if (Flights.existsConnectingFlight()) {
       $scope.nextItem = {
-        description: 'You flight leaves in ' + Flights.timeToConnectingFlighInMinutes() + ' minutes'
+        description: 'You flight leaves in ' + Flights.timeToConnectingFlightInMinutes() + ' minutes'
       }
     } else {
       $scope.items.push({
