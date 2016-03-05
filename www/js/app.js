@@ -1,4 +1,5 @@
 // Ionic Starter App
+var ORDER_NR = 'ord_008';
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
@@ -45,7 +46,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       },
       resolve: {
         'Order': function ($rootScope) {
-          $rootScope.order = 'ord_003';
+          $rootScope.order = ORDER_NR;
         },
         'LufthansaToken': function (Lufthansa) {
           return Lufthansa.authenticate();
@@ -65,7 +66,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       controller: 'ListController',
       resolve: {
         'Order': function ($rootScope) {
-          $rootScope.order = 'ord_002';
+          $rootScope.order = ORDER_NR;
         },
         'LufthansaToken': function (Lufthansa) {
           return Lufthansa.authenticate();
@@ -85,7 +86,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       controller: 'ListController',
       resolve: {
         'Order': function ($rootScope) {
-          $rootScope.order = 'ord_002';
+          $rootScope.order = ORDER_NR;
         },
         'LufthansaToken': function (Lufthansa) {
           return Lufthansa.authenticate();

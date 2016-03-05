@@ -114,7 +114,21 @@ angular.module('starter.controllers', [])
             }
           });
         });
+        break;
       case 'eating':
+        Fraport.getBeacons('Food').then(function(shops) {
+          console.log('shops:',shops);
+
+          Location.getMyLocation().then(function (myLocation) {
+            for (var shop in shops) {
+              $scope.items.push({
+                title: shops[shop].name,
+                additionalData: Location.getDistance(shops[shop].latitude, shops[shop].longitude, myLocation.latitude, myLocation.longitude),
+                state: 'navigation'
+              })
+            }
+          });
+        });
         // baggage?
         // plane leaving?
         // train leaving?
