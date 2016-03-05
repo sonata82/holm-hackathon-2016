@@ -59,7 +59,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('ListController', function ($scope, $state, Baggage, Flights, Fraport, Location) {
+.controller('ListController', function ($scope, $state, Baggage, Flights, Fraport, Location, DeutscheBahn) {
     console.log($state.current.name);
     $scope.name = $state.current.name;
     $scope.items = [];
@@ -70,23 +70,33 @@ angular.module('starter.controllers', [])
           if (isBaggageAvailable) {
             $scope.items.push({
               title: 'Claim your baggage',
-              state: 'baggage'
+              state: 'baggage',
+              icon: 'ion-briefcase'
             });
           }
         });
-        // baggage?
-        // train?
+        DeutscheBahn.getNextConnectionToHome().then(function (connection) {
+          console.log(connection);
+          $scope.items.push({
+            title: 'Next train home',
+            state: 'train',
+            additionalData: connection.name + ' from track ' + connection.track + ' at ' + connection.time,
+            icon: 'ion-android-train'
+          })
+        });
         break;
       case 'baggage':
       case 'arriving':
         if (Baggage.timeToBaggageInMinutes() > 10) {
           $scope.items.push({
             title: 'Go for some shopping?',
-            state: 'shopping'
+            state: 'shopping',
+            icon: 'ion-bag'
           },
           {
             title: 'Hungry?',
-            state: 'eating'
+            state: 'eating',
+            icon: 'ion-pizza'
           });
         }
         break;
@@ -98,7 +108,7 @@ angular.module('starter.controllers', [])
             for (var shop in shops) {
               $scope.items.push({
                 title: shops[shop].name,
-                distance: Location.getDistance(shops[shop].latitude, shops[shop].longitude, myLocation.latitude, myLocation.longitude),
+                additionalData: Location.getDistance(shops[shop].latitude, shops[shop].longitude, myLocation.latitude, myLocation.longitude),
                 state: 'navigation'
               })
             }
@@ -118,21 +128,6 @@ angular.module('starter.controllers', [])
             description: 'You flight leaves ' + nextFlightInfo.toNow
           }
         }
-      } else {
-        $scope.items.push({
-          title: 'Train to home',
-          state: 'train'
-        });
       }
     });
-
-    console.log($scope.items);
-    //  ,
-    //  {
-    //    title: 'Go shopping'
-    //  },
-    //  {
-    //    title: 'Get something to eat'
-    //  }
-    //]
 });

@@ -284,4 +284,37 @@ angular.module('starter.services', ['starter.api_keys'])
         return getDistance(latitude1, lonitude1, latitude2, longitude2);
       }
     }
+}).
+
+factory('DeutscheBahn', function ($http, $q, DB_API) {
+    return {
+      getNextConnectionToHome: function () {
+        var deferred = $q.defer();
+
+        $http({
+          url: DB_API.ENDPOINT + '/departureBoard',
+          params: {
+            format: 'json',
+            authKey: DB_API.AUTH_KEY,
+            id: 'FFLF',
+            date: moment().format('YYYYMMDD'),
+            time: moment().format('HHmm'),
+            direction: '8000207'
+          }
+        }).then(function (result) {
+          console.log('result:', result.data.DepartureBoard.Departure[0]);
+
+          var nextTrain = result.data.DepartureBoard.Departure[0];
+
+          deferred.resolve({
+            name: nextTrain.name,
+            track: nextTrain.track,
+            time: nextTrain.time,
+            toNow: moment(nextTrain.date + nextTrain.time).toNow()
+          });
+        });
+
+        return deferred.promise;
+      }
+    }
 });

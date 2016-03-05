@@ -2,9 +2,12 @@
 <ion-view title="{{name}}">
   <ion-content>
     <ion-list>
-      <ion-item ng-repeat="item in items" ui-sref="{{item.state}}" style="cursor: pointer;">
+      <ion-item ng-repeat="item in items" ui-sref="{{item.state}}" style="cursor: pointer;" class="item-icon-left">
+        <i class="icon {{item.icon}}"></i>
         <h2>{{item.title}}</h2>
-        {{item.distance}}
+        <span class="item-note">
+          {{item.additionalData}}
+        </span>
       </ion-item>
     </ion-list>
   </ion-content>

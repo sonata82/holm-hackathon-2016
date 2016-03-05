@@ -13,6 +13,10 @@
     {
       "path": "/fr_api",
       "proxyUrl": "https://cube.api.aero/atibeacon/beacons"
+    },
+    {
+      "path": "/db_api",
+      "proxyUrl": "https://open-api.bahn.de/bin/rest.exe"
     }
   ]
 }

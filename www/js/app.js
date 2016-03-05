@@ -37,7 +37,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         console.log('Initialising...', ExistsArrivingFlight);
 
         $ionicHistory.currentView($ionicHistory.backView());
-        if (ExistsArrivingFlight) {
+        if (ExistsArrivingFlight && ExistsArrivingFlight.toNow !== -1) {
           $state.go('landing');
         } else {
           $state.go('arriving');
@@ -45,7 +45,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       },
       resolve: {
         'Order': function ($rootScope) {
-          $rootScope.order = 'ord_002';
+          $rootScope.order = 'ord_003';
         },
         'LufthansaToken': function (Lufthansa) {
           return Lufthansa.authenticate();
@@ -90,9 +90,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         'LufthansaToken': function (Lufthansa) {
           return Lufthansa.authenticate();
         }
-        /*'RetailBeacons': function (Fraport) {
-          return Fraport.getBeacons('retail');
-        }*/
       }
     })
 
@@ -109,6 +106,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('navigation', {
       url: '/navigation',
+      templateUrl: 'templates/list.html',
+      controller: 'ListController'
+    })
+
+    .state('train', {
+      url: '/train',
       templateUrl: 'templates/list.html',
       controller: 'ListController'
     })
