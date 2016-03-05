@@ -61,11 +61,11 @@ angular.module('starter.controllers', [])
 
 .controller('ListController', function ($scope, $state, Baggage, Flights, Fraport, Location, DeutscheBahn) {
     console.log($state.current.name);
-    $scope.name = $state.current.name;
     $scope.items = [];
 
     switch($state.current.name) {
       case 'landing':
+        $scope.name = 'What would you like to do? (' + $state.current.name + ')';
         Baggage.isBaggageAvailable().then(function (isBaggageAvailable) {
           if (isBaggageAvailable) {
             $scope.items.push({
@@ -76,7 +76,6 @@ angular.module('starter.controllers', [])
           }
         });
         DeutscheBahn.getNextConnectionToHome().then(function (connection) {
-          console.log(connection);
           $scope.items.push({
             title: 'Next train home',
             state: 'train',
@@ -87,6 +86,7 @@ angular.module('starter.controllers', [])
         break;
       case 'baggage':
       case 'arriving':
+        $scope.name = 'What would you like to do? (' + $state.current.name + ')';
         if (Baggage.timeToBaggageInMinutes() > 10) {
           $scope.items.push({
             title: 'Go for some shopping?',
@@ -94,13 +94,14 @@ angular.module('starter.controllers', [])
             icon: 'ion-bag'
           },
           {
-            title: 'Hungry?',
+            title: 'Are you hungry?',
             state: 'eating',
             icon: 'ion-pizza'
           });
         }
         break;
       case 'shopping':
+        $scope.name = 'Here are some stores (' + $state.current.name + ')';
         Fraport.getBeacons('Retail').then(function(shops) {
           console.log('shops:',shops);
 
@@ -116,9 +117,8 @@ angular.module('starter.controllers', [])
         });
         break;
       case 'eating':
+        $scope.name = 'Here are some restaurants (' + $state.current.name + ')';
         Fraport.getBeacons('Food').then(function(shops) {
-          console.log('shops:',shops);
-
           Location.getMyLocation().then(function (myLocation) {
             for (var shop in shops) {
               $scope.items.push({
@@ -139,7 +139,7 @@ angular.module('starter.controllers', [])
       if (nextFlightInfo) {
         if (nextFlightInfo.toNow !== -1) {
           $scope.nextItem = {
-            description: 'You flight leaves ' + nextFlightInfo.toNow
+            description: 'Your flight leaves ' + nextFlightInfo.toNow
           }
         }
       }
